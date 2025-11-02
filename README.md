@@ -1,11 +1,11 @@
-# DevOps-Hackathon-Toronto-Team-2
+# Halal Hustlers
 Canada DevOps Community of Practice Hackathon Toronto - Team 2
 
-Project Name - TBD
+Project Name - Halal Hustlers
 
 Team Mentor - Ravi Bhargava
 
 Participant Names - 
 
-     Team Lead - 
-     Team Members - Feras Mahmood, Muhammad Taimoor Aleem, Sanghad, Tauheed Attar, Umar Zaman 
+     Team Lead - Muhammad Taimoor Aleem
+     Team Members - Feras Mahmood, Tauheed Attar, Umar Zaman, Deeptanshu Sanghani
