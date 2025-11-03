@@ -8,6 +8,7 @@ from schemas.transaction import ApproveIn, PostTransactionIn, PostTransactionOut
 from providers.transactions import approve_transaction, create_transaction, get_transaction
 from models.Transcation import TxStatus
 from logging_utils import get_logger
+from models.transaction_model import Transaction
 
 #name/backend
 router = APIRouter()

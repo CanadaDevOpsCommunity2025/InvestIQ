@@ -29,8 +29,10 @@ app.add_middleware(
 )
 
 
-# Health check endpoints (for both root and /api)
-@app.get("/healthcheck")
+
+
+
+@api.get("/healthcheck")
 async def healthcheck():
     return {"status": "guardian is running"}
 
