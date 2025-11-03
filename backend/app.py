@@ -22,18 +22,13 @@ app.add_middleware(
 )
 
 LOGGER = get_logger("BankIQ-Guardian")
-LOGGER = get_logger("BankIQ-Guardian")
+
 
 # Dummy in-memory database
 TRANSACTIONS_DB = []
 
 NOTIFICATIONS_DB = []
 
-
-@app.get("/api/healthcheck")
-@app.get("/api/healthcheck")
-async def healthcheck():
-    return {"status": "guardian is running"}
 
 @api.get("/healthcheck")
 async def api_healthcheck():
