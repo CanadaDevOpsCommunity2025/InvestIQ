@@ -270,4 +270,4 @@ tmp/
 # Misc deployment
 .vercel/
 .netlify/
-.vscode-test/
+.vscode-test/docker-compose.yml
