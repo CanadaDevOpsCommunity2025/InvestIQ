@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from db_config import get_db
+from db_config import get_db, engine
+from sqlalchemy import text
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
@@ -25,32 +26,34 @@ class VerifyRequest(BaseModel):
     context: str
 
 def fetch_recent_transactions():
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT merchant, amount, category, transaction_date
-        FROM hist_transactions
-        WHERE transaction_date >= CURDATE() - INTERVAL 2 DAY
-        ORDER BY transaction_date DESC
-        LIMIT 3
-    """)
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return rows
+    """Fetch recent transactions from our PostgreSQL database"""
+    db = get_db()
+    try:
+        # Query our transactions table (matches our schema)
+        result = db.execute(text("""
+            SELECT vendor as merchant, amount, category, tx_date as transaction_date
+            FROM transactions
+            WHERE tx_date >= CURRENT_DATE - INTERVAL '2 days'
+            ORDER BY tx_date DESC
+            LIMIT 3
+        """))
+        rows = []
+        for row in result:
+            rows.append({
+                'merchant': row.merchant,
+                'amount': float(row.amount),
+                'category': row.category,
+                'transaction_date': row.transaction_date
+            })
+        return rows
+    finally:
+        db.close()
 
 def fetch_personal_details():
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT first_name, last_name, dob, mother_maiden_name, first_car_make, first_pet_name 
-        FROM personal_details_plaintext
-        LIMIT 1
-    """)
-    row = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return row
+    """Fetch personal details - placeholder for future implementation"""
+    # TODO: Add personal_details table to our PostgreSQL schema if needed
+    # For now, return None as we don't have this table yet
+    return None
 
 def format_personal_details_context(details):
     if not details:
@@ -105,25 +108,36 @@ Transactions:
         personal_details = fetch_personal_details()
         personal_details_str = format_personal_details_context(personal_details)
 
-        prompt2 = f"""
+        # If personal details are not available, skip that question
+        if personal_details_str:
+            prompt2 = f"""
 You are a digital banking assistant. Based on the following personal details, ask ONE friendly and specific security question to verify the user. Use the available details (name, date of birth, mother's maiden name, first car make, first pet name), picking what is most relevant. Make the question clear and refer directly to one named detail. Respond ONLY with the question and nothing else.
 
 Personal details:
 {personal_details_str}
 """
 
-        llm_response2 = llm.invoke(prompt2)
-        question2 = llm_response2.content.strip()
+            llm_response2 = llm.invoke(prompt2)
+            question2 = llm_response2.content.strip()
 
-        # Compose both questions for frontend to display
-        blocking_msg = "Hi, I have blocked your transaction, cuz it seemed suspicious! Please answer a couple of questions to verify it's you."
-        full_question1 = f"{blocking_msg}\n\nQuestion 1: {question1}"
-        full_question2 = f"Question 2: {question2}"
+            # Compose both questions for frontend to display
+            blocking_msg = "Hi, I have blocked your transaction, cuz it seemed suspicious! Please answer a couple of questions to verify it's you."
+            full_question1 = f"{blocking_msg}\n\nQuestion 1: {question1}"
+            full_question2 = f"Question 2: {question2}"
 
-        return {
-            "security_questions": [full_question1, full_question2],
-            "contexts": [context_str, personal_details_str]
-        }
+            return {
+                "security_questions": [full_question1, full_question2],
+                "contexts": [context_str, personal_details_str]
+            }
+        else:
+            # Only return transaction-based question if personal details not available
+            blocking_msg = "Hi, I have blocked your transaction, cuz it seemed suspicious! Please answer a question to verify it's you."
+            full_question1 = f"{blocking_msg}\n\nQuestion: {question1}"
+
+            return {
+                "security_questions": [full_question1],
+                "contexts": [context_str]
+            }
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
