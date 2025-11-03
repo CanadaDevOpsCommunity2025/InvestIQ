@@ -190,6 +190,11 @@ secrets/
 api-keys.txt
 secrets.txt
 
+# Kubernetes Secrets (actual secrets files, not templates)
+infra/kubernetes/secrets.yaml
+monitoring/*secrets.yaml
+*.secrets.yaml
+
 # IDE & Editor
 .vscode/
 .idea/
@@ -265,4 +270,4 @@ tmp/
 # Misc deployment
 .vercel/
 .netlify/
-.vscode-test/
+.vscode-test/docker-compose.yml
