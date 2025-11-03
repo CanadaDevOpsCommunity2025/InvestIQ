@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
 const { message } = await req.json();
-// Simple mock with rule-based replies. Replace with your backend later.
+
 let reply = "I need more details.";
 if (/apple/i.test(message)) reply = "The Apple charge was flagged due to higher-than-usual amount compared to your 30-day average.";
 if (/recurr|subscription|rent/i.test(message)) reply = "I see a recurring pattern. I can schedule a reminder one day before due date.";

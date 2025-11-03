@@ -46,8 +46,8 @@ export default function HomePage() {
     return sorted;
   }, [q, sortKey, sortDir, rows]);
 
-  function badge(status: string, suspicious: boolean) {
-    if (suspicious) return <Badge color="red">suspicious</Badge>;
+  function badge(status: string, blocked: boolean) {
+    if (blocked) return <Badge color="red">blocked</Badge>;
     if (status === "cleared") return <Badge color="green">cleared</Badge>;
     if (status === "pending") return <Badge color="yellow">pending</Badge>;
     return <Badge color="blue">{status}</Badge>;
@@ -97,7 +97,7 @@ export default function HomePage() {
                     <tr className="border-b border-[var(--border)]">
                       <th className="py-3">Date</th>
                       <th>Merchant</th>
-                      <th className="text-right">Amount</th>
+                      <th>Amount</th>
                       <th>Currency</th>
                       <th>Status</th>
                       <th className="text-right">Flag</th>
@@ -108,10 +108,10 @@ export default function HomePage() {
                       <tr key={t.transaction_id} className="border-b border-[var(--border)] hover:bg-white/5">
                         <td className="py-3">{new Date(t.transaction_date).toLocaleDateString()}</td>
                         <td>{t.merchant}</td>
-                        <td className="text-right font-medium">
+                        <td className="font-medium">
                           {t.amount < 0 ? "-" : "+"}${Math.abs(t.amount).toFixed(2)}
                         </td>
-                        <td className="text-[var(--muted)]">{t.currency}</td>
+                        <td>{t.currency}</td>
                         <td>{t.status}</td>
                         <td className="text-right">{badge(t.status, t.suspicious_flag)}</td>
                       </tr>
