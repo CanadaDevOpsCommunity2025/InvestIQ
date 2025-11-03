@@ -1,13 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from services.transaction_service import post_transaction
-from services.notification_service import send_notification
-import uuid
-
-app = FastAPI(title="Guardian Verification Agent")
-
-# CORS setup for frontend testing
 from routers import transaction_router
 
 app = FastAPI()
@@ -27,10 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
-
 
 @app.get("/healthcheck")
 async def healthcheck():
