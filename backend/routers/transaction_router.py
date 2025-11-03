@@ -1,5 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
+from models.transaction_model import Transaction
 from services.notification_service import send_notification
 from services.transaction_service import post_transaction
 from services.detection_services import is_suspicious
@@ -63,7 +64,7 @@ TRANSACTIONS_DB = []
 
 NOTIFICATIONS_DB = []
 
-@router.post("/api/verify-transaction")
+@router.post("/verify-transaction")
 async def verify_transaction(transaction: Transaction):
     LOGGER.info(f"Received transaction: {transaction.transaction_id}")
     suspicious, reason = is_suspicious(transaction)
@@ -95,13 +96,13 @@ async def verify_transaction(transaction: Transaction):
 
 
 
-@router.get("/api/transactions")
-async def get_transactions():
+@router.get("/transactions")
+async def get_transaction_history():
     """Get all transactions (simulated database)."""
     return {"transactions": TRANSACTIONS_DB}
 
 
-@router.get("/api/notifications/{user_id}")
+@router.get("/notifications/{user_id}")
 async def get_notifications(user_id: str):
     """Return all notifications for a user."""
     user_notifs = [n for n in NOTIFICATIONS_DB if n["user_id"] == user_id]
