@@ -80,8 +80,11 @@ kubectl create namespace investiq
 # Create secrets for API keys
 kubectl create secret generic investiq-secrets \
   --from-literal=gemini-api-key=$GEMINI_API_KEY \
-  --from-literal=twilio-sid=$TWILIO_ACCOUNT_SID \
-  --from-literal=twilio-token=$TWILIO_AUTH_TOKEN \
+  --from-literal=smtp-host=$SMTP_HOST \
+  --from-literal=smtp-port=$SMTP_PORT \
+  --from-literal=smtp-username=$SMTP_USERNAME \
+  --from-literal=smtp-password=$SMTP_PASSWORD \
+  --from-literal=email-from=$EMAIL_FROM \
   --namespace=investiq
 
 # Create database credentials
@@ -115,8 +118,11 @@ Add the following secrets:
 - `DOCKER_HUB_USERNAME`
 - `DOCKER_HUB_TOKEN`
 - `GEMINI_API_KEY`
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `EMAIL_FROM`
 
 ### 2. CI/CD Pipeline
 

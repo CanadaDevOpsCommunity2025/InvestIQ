@@ -19,7 +19,7 @@ Redis Queue (Task Routing)
        ↓
 PostgreSQL (State + Logs)
        ↓
-Notifications (Twilio/SMS)
+Notifications (Email & In-App)
 ```
 
 ## Component Details
@@ -94,8 +94,8 @@ Each agent is an independent microservice with its own container:
 
 ### Notification Layer
 
-- **Twilio SMS**: Real-time SMS notifications
-- **Streamlit UI**: In-app notifications
+- **Email Notifications**: SMTP-based email alerts (Gmail, SendGrid free tier, etc.)
+- **In-App Notifications**: Real-time notifications via Streamlit UI or API
 - **Notifications Sent**:
   - Payment execution confirmations
   - Fraud alerts
@@ -111,7 +111,7 @@ Each agent is an independent microservice with its own container:
 5. **AI Reasoning**: Agent uses Gemini API if decision needed
 6. **Action Execution**: Agent performs financial action
 7. **Database Update**: Results logged to PostgreSQL
-8. **Notification**: User notified via SMS or UI
+8. **Notification**: User notified via Email or In-App UI
 9. **Response**: API returns result to user
 
 ## Deployment Architecture

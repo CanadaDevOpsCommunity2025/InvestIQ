@@ -15,7 +15,7 @@ A multi-agent banking system leveraging AI to automate key financial workflows:
 - **Detect and execute recurring payments**
 - **Verify and block fraudulent transactions**
 - **Optimize credit utilization and limit increases**
-- **Notify users proactively through chat/SMS**
+- **Notify users proactively through email and in-app notifications**
 
 Each agent is an independent microservice using **Google Gemini API** for reasoning, orchestrated through a DevOps-enabled system that scales autonomously on **Kubernetes (EKS)**.
 
@@ -34,7 +34,7 @@ Each agent is an independent microservice using **Google Gemini API** for reason
 - **Task Router**: Redis Queue or RabbitMQ for message passing
 - **Database**: PostgreSQL (or SQLite for demo)
 - **LLM Engine**: Google Gemini API for reasoning and conversations
-- **Notification System**: Twilio/SMS or Streamlit UI for transparency
+- **Notification System**: Email (SMTP) and In-App notifications via Streamlit UI for transparency
 
 ## 🏗️ Architecture Flow
 
@@ -51,7 +51,7 @@ Redis Queue (Task Routing)
        ↓
 PostgreSQL (State + Logs)
        ↓
-Notifications (Twilio/SMS)
+Notifications (Email & In-App)
 ```
 
 **Kubernetes (EKS)** manages containers for all agents. **GitHub Actions** automates build → test → push → deploy.
@@ -88,14 +88,14 @@ Notifications (Twilio/SMS)
 
 ## 🧮 Judging Rubric Focus
 
-| Criterion               | Implementation Focus                             |
-| ----------------------- | ------------------------------------------------ |
-| **Innovation (25%)**    | Multi-agent self-acting system in banking domain |
-| **Complexity (20%)**    | Containerized microservices, EKS orchestration   |
-| **CI/CD (15%)**         | GitHub Actions automation for build/deploy       |
-| **Usability (10%)**     | Simple UI + SMS transparency                     |
-| **AI Tool Usage (10%)** | Gemini LLM for fraud reasoning and credit logic  |
-| **Collaboration (10%)** | Modular agent development + version control      |
+| Criterion               | Implementation Focus                               |
+| ----------------------- | -------------------------------------------------- |
+| **Innovation (25%)**    | Multi-agent self-acting system in banking domain   |
+| **Complexity (20%)**    | Containerized microservices, EKS orchestration     |
+| **CI/CD (15%)**         | GitHub Actions automation for build/deploy         |
+| **Usability (10%)**     | Simple UI + Email/In-app notification transparency |
+| **AI Tool Usage (10%)** | Gemini LLM for fraud reasoning and credit logic    |
+| **Collaboration (10%)** | Modular agent development + version control        |
 
 ## 🧰 Suggested Folder Layout
 

@@ -10,7 +10,7 @@ Each agent is an independent microservice that:
 - Processes tasks from Redis queue
 - Uses Google Gemini API for decision-making
 - Logs all actions to PostgreSQL
-- Sends notifications via Twilio/SMS
+- Sends notifications via Email and In-App UI
 
 ## Payment Automation Agent
 
@@ -77,7 +77,8 @@ Detects and prevents fraudulent transactions using AI-powered analysis.
 
 2. **User Verification**
 
-   - Sends SMS alerts for suspicious transactions
+   - Sends email alerts for suspicious transactions
+   - Displays in-app notifications for immediate visibility
    - Waits for user confirmation
    - Blocks transactions if user denies
 

@@ -60,10 +60,17 @@ REDIS_URL=redis://localhost:6379/0
 # Google Gemini API
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# Twilio (optional, for SMS notifications)
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
-TWILIO_PHONE_NUMBER=+1234567890
+# Email/SMTP (for email notifications - use Gmail or SendGrid free tier)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+EMAIL_FROM=your_email@gmail.com
+
+# Optional: Twilio for SMS (if needed later, costs money)
+# TWILIO_ACCOUNT_SID=your_twilio_sid
+# TWILIO_AUTH_TOKEN=your_twilio_token
+# TWILIO_PHONE_NUMBER=+1234567890
 
 # Application
 ENVIRONMENT=development
@@ -225,8 +232,11 @@ Add the following secrets to your GitHub repository:
 - `DOCKER_HUB_USERNAME`
 - `DOCKER_HUB_TOKEN`
 - `GEMINI_API_KEY`
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `EMAIL_FROM`
 
 ### 2. Pipeline Workflow
 
