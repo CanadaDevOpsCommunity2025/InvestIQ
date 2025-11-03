@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routers import transaction_router
+
 app = FastAPI()
 app.title = "guardian"
 
@@ -9,12 +11,7 @@ api.title = "guardian api"
 app.mount("/api", api, name="api")
 
 
-# api.include_router(llm_router.router, prefix="/openai")
-# api.include_router(auth_router.router, prefix="/auth")
-# api.include_router(admin_router.router, prefix="/admin")
-# api.include_router(pii_router.router, prefix="/pii")
-# api.include_router(analytics_router.router, prefix="/data_leak")
-
+api.include_router(transaction_router.router, prefix="/transactions")
 
 # Allow Front-end Origin in local development
 origins = ["http://localhost:5173"]
