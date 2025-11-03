@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import transaction_router
+from logging_utils import get_logger
 
 app = FastAPI()
 app.title = "guardian"
