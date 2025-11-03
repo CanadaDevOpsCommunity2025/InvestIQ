@@ -21,11 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-LOGGER = get_logger("BankIQ-Guardian")
 
 
 
 
+
+@app.get("/api/healthcheck")
 @app.get("/api/healthcheck")
 async def healthcheck():
     return {"status": "guardian is running"}
