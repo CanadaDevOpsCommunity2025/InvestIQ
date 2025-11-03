@@ -6,7 +6,7 @@ authors = [
     {name = "Deeptanshu Sanghani",email = "deeptanshusanghani@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0.0"
 dependencies = [
     "fastapi (>=0.120.4,<0.121.0)",
     "uvicorn[standard] (>=0.38.0,<0.39.0)",
@@ -14,7 +14,8 @@ dependencies = [
     "python-dotenv (>=1.2.1,<2.0.0)",
     "python-multipart (>=0.0.20,<0.0.21)",
     "sqlalchemy (>=2.0.44,<3.0.0)",
-    "psycopg2-binary (>=2.9.9,<3.0.0)"
+    "psycopg2-binary (>=2.9.9,<3.0.0)",
+    "langchain-google-genai (>=3.0.0,<4.0.0)"
 ]
 
 
