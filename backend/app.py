@@ -1,14 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from services.transaction_service import post_transaction
-from services.notification_service import send_notification
-import uuid
-
-app = FastAPI(title="Guardian Verification Agent")
-
-# CORS setup for frontend testing
 from routers import transaction_router
+from logging_utils import get_logger
 
 app = FastAPI()
 app.title = "guardian"
@@ -28,13 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+LOGGER = get_logger("BankIQ-Guardian")
 
 
+# Dummy in-memory database
+TRANSACTIONS_DB = []
 
+NOTIFICATIONS_DB = []
 
-@api.get("/healthcheck")
-async def healthcheck():
-    return {"status": "guardian is running"}
 
 @api.get("/healthcheck")
 async def api_healthcheck():

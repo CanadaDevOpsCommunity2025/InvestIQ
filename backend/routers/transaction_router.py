@@ -1,5 +1,8 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from routers.llm_router import generate_security_question, verify_security_answer
+from models.transaction_model import Transaction
 from services.notification_service import send_notification
 from services.transaction_service import post_transaction
 from services.detection_services import is_suspicious
@@ -8,11 +11,14 @@ from schemas.transaction import ApproveIn, PostTransactionIn, PostTransactionOut
 from providers.transactions import approve_transaction, create_transaction, get_transaction
 from models.Transcation import TxStatus
 from logging_utils import get_logger
-from models.transaction_model import Transaction
 
 #name/backend
 router = APIRouter()
 LOGGER = get_logger("guardian")
+# Dummy in-memory database
+TRANSACTIONS_DB = []
+
+NOTIFICATIONS_DB = []
 
 
 @router.post("/create_trx", response_model=TransactionOut, status_code=201)
@@ -41,35 +47,33 @@ def get_tx(tx_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/approve_trx/{tx_id}", response_model=PostTransactionOut)
-def approve_tx(tx_id: int, payload: ApproveIn, db: Session = Depends(get_db)):
+def approve_tx(tx_id: int, db: Session = Depends(get_db)):
     tx = get_transaction(db, tx_id)
     if not tx:
         raise HTTPException(status_code=404, detail="transaction not found")
-
-    tx, ledger = approve_transaction(db, tx_id, payload.provider_ref)
-
-    return PostTransactionOut(
-        id=tx.id, amount=tx.amount, vendor=tx.vendor, category=tx.category,
-        date=tx.tx_date, status=tx.status, created_at=tx.created_at, updated_at=tx.updated_at,
-        ledger_id=(ledger.id if ledger else None),
+    
+    return TransactionOut(
+        id=tx.id,
+        amount=tx.amount,
+        vendor=tx.merchant,
+        category=tx.category,
+        date=tx.transaction_date,
+        status=tx.status,
+        created_at=tx.created_at,
+        updated_at=tx.updated_at,
     )
 
-
-
-#Tauheed stuff below
-
-# Dummy in-memory database
-TRANSACTIONS_DB = []
-
-NOTIFICATIONS_DB = []
-
-@router.post("/api/verify-transaction")
-async def verify_transaction(transaction: Transaction):
-    LOGGER.info(f"Received transaction: {transaction.transaction_id}")
+@router.post("/api/verify-transaction-post-question")
+async def get_question(transaction: Transaction):
     suspicious, reason = is_suspicious(transaction)
-
+    if not suspicious:
+        transaction.status = "approved"
+        result = post_transaction(transaction)
+        TRANSACTIONS_DB.append(result)
+        LOGGER.info(f"Transaction approved: {transaction.transaction_id}")
+        return {"transaction_id": transaction.transaction_id, "suspicious": False, "reason": "Normal"}
     if suspicious:
-        transaction.status = "blocked"
+        transaction.status= "blocked"
         TRANSACTIONS_DB.append(transaction.dict())
 
         notif = send_notification(
@@ -79,18 +83,59 @@ async def verify_transaction(transaction: Transaction):
         NOTIFICATIONS_DB.append(notif)
 
         LOGGER.warning(f"Transaction blocked: {transaction.transaction_id} ({reason})")
+        try:
+            q_payload = generate_security_question()
+            if isinstance(q_payload, JSONResponse):
+                # error path from generate_security_question
+                raise RuntimeError("Failed to generate security questions")
+            security_questions = q_payload["security_questions"]
+        except Exception as e:
+            LOGGER.exception("Failed to generate security questions")
+            raise HTTPException(
+                status_code=500,
+                detail="Unable to generate security questions",
+            )
         return {
             "transaction_id": transaction.transaction_id,
             "suspicious": True,
             "reason": reason,
+            "question": q_payload
         }
 
-    # If not suspicious → approve and save
-    transaction.status = "approved"
-    result = post_transaction(transaction)
-    TRANSACTIONS_DB.append(result)
-    LOGGER.info(f"Transaction approved: {transaction.transaction_id}")
-    return {"transaction_id": transaction.transaction_id, "suspicious": False, "reason": "Normal"}
+
+
+
+
+#Tauheed stuff below
+
+
+
+@router.post("/api/verify-transaction")
+async def verify_transaction(transaction: Transaction, answer:str):
+    ans = verify_security_answer(answer)
+    if ans:
+        transaction.status = "approved"
+        result = post_transaction(transaction)
+        TRANSACTIONS_DB.append(result)
+        LOGGER.info(f"Transaction approved: {transaction.transaction_id}")
+        return {"transaction_id": transaction.transaction_id, "suspicious": False, "reason": "Normal"}
+    
+    transaction.status = "Failed"
+    return {
+        "transaction_id": transaction.transaction_id,
+        "Transaction Status": transaction.status,
+        "suspicious": True,
+        "message": "Transaction failed"
+        }
+    # LOGGER.info(f"Received transaction: {transaction.transaction_id}")
+    # suspicious, reason = is_suspicious(transaction)
+        
+    # # If not suspicious → approve and save
+    # transaction.status = "approved"
+    # result = post_transaction(transaction)
+    # TRANSACTIONS_DB.append(result)
+    # LOGGER.info(f"Transaction approved: {transaction.transaction_id}")
+    # return {"transaction_id": transaction.transaction_id, "suspicious": False, "reason": "Normal"}
 
 
 

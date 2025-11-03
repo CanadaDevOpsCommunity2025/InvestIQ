@@ -69,6 +69,27 @@ poetry run uvicorn app:app --reload --port 8000
 poetry run python scripts/load_csv_data.py ../data/transactions.csv
 ```
 
+## Test LLM Service (Optional)
+
+The LLM service generates security questions based on transaction data.
+
+```bash
+# 1. Set GOOGLE_API_KEY (if you have one)
+export GOOGLE_API_KEY=your-api-key-here
+
+# 2. Start LLM service
+cd backend/llm-service
+export DATABASE_URL=postgresql://investiq:investiq123@localhost:5432/investiq_db
+uvicorn main:app --port 8000
+
+# 3. Test endpoint (in another terminal)
+curl -X POST http://localhost:8000/generate-security-question \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+See `backend/llm-service/README.md` for detailed testing instructions.
+
 ## Environment Variables
 
 See `.env.example` for all available environment variables.
@@ -95,10 +116,33 @@ docker-compose logs postgres
 docker-compose restart postgres
 ```
 
+**Docker Hub authentication error?**
+```bash
+# If you see: "unauthorized: email must be verified before using account"
+
+# Option 1: Login to Docker Hub (recommended)
+docker login
+
+# Option 2: Pull images without login (public images should work)
+docker pull postgres:15-alpine
+docker pull redis:7-alpine
+
+# Then try again
+docker-compose up -d postgres redis
+```
+
+**Docker Compose version warning?**
+```bash
+# If you see: "the attribute `version` is obsolete"
+# This is just a warning - it won't break anything
+# You can ignore it, or remove the "version: '3.8'" line from docker-compose.yml
+```
+
 **Port already in use?**
 ```bash
 # Check what's using port 8000
-lsof -i :8000
+lsof -i :8000  # macOS/Linux
+netstat -ano | findstr :8000  # Windows
 
 # Use a different port
 poetry run uvicorn app:app --reload --port 8001
