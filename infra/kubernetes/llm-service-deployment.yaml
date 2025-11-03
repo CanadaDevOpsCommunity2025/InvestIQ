@@ -19,14 +19,9 @@ spec:
     spec:
       containers:
         - name: llm-service
-          # For AWS ECR (recommended for EKS):
-          # Replace <AWS_ACCOUNT_ID> and <AWS_REGION> with your actual values
-          # image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/investiq-llm-service:latest
-          # For Docker Hub (alternative):
-          # image: <dockerhub-username>/investiq-llm-service:latest
-          # For local testing (build and load image):
-          image: investiq-llm-service:latest
-          imagePullPolicy: IfNotPresent
+          # Using AWS ECR (hackathon account)
+          image: 466650003123.dkr.ecr.us-east-1.amazonaws.com/investiq-llm-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
               name: http
@@ -91,4 +86,3 @@ spec:
       name: http
   selector:
     app: llm-service
-

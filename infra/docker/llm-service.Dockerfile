@@ -1,22 +1,27 @@
 # Multi-stage build for LLM service
 FROM python:3.12-slim as builder
 
-# Install Poetry
-RUN pip install --no-cache-dir poetry==1.7.1
-
 # Set working directory
 WORKDIR /app
 
 # Copy dependency files
-# Note: LLM service may use backend's pyproject.toml or have its own
-# Adjust path based on your project structure
-COPY backend/pyproject.toml backend/poetry.lock ./
+# LLM service uses the same dependencies as backend
+COPY backend/pyproject.toml ./
 
-# Configure Poetry to not create virtual environment
-RUN poetry config virtualenvs.create false
+# Install build dependencies
+RUN pip install --no-cache-dir build
 
-# Install dependencies (including LLM service specific ones)
-RUN poetry install --no-interaction --no-ansi --no-root
+# Install dependencies using pip (project uses PEP 621 format, not Poetry)
+RUN pip install --no-cache-dir \
+    fastapi>=0.120.4 \
+    "uvicorn[standard]>=0.38.0" \
+    pyjwt>=2.10.1 \
+    python-dotenv>=1.2.1 \
+    python-multipart>=0.0.20 \
+    sqlalchemy>=2.0.44 \
+    psycopg2-binary>=2.0.9 \
+    langchain-google-genai \
+    python-dateutil
 
 # Production stage
 FROM python:3.12-slim
@@ -33,8 +38,14 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy LLM service code
-COPY backend/llm-service/ ./llm-service/
+# Install any additional dependencies needed for LLM service
+RUN pip install --no-cache-dir langchain-google-genai python-dateutil
+
+# Copy LLM service code (need to copy the whole backend to maintain imports)
+COPY backend/ ./backend/
+
+# Set Python path so imports work
+ENV PYTHONPATH=/app
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
@@ -48,6 +59,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/docs || exit 1
 
 # Run the application
-# Note: Adjust the path based on your actual module structure
-CMD ["uvicorn", "llm-service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Change to backend/llm-service directory and run from there
+WORKDIR /app/backend/llm-service
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
